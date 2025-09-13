@@ -9,13 +9,23 @@ app = Flask(__name__)
 def text_to_number(text):
     """Convert English text number to integer"""
     # Remove any non-alphanumeric characters and convert to lowercase
-    text = re.sub(r'[^a-zA-Z\s-]', '', text.lower())
+    text = re.sub(r'[^a-zA-Z\s]', '', text.lower()).strip()
     
     # Special case for zero
     if text in ['zero', 'nil']:
         return 0
     
-    # Dictionary for special number words
+    # Try using text2digits library for complex numbers first
+    try:
+        t2d = text2digits.Text2Digits()
+        result = t2d.convert(text)
+        # If conversion succeeded and returned a number, return it
+        if result and result.isdigit():
+            return int(result)
+    except:
+        pass
+    
+    # Fallback to dictionary for basic numbers
     number_words = {
         'one': 1, 'two': 2, 'three': 3, 'four': 4, 'five': 5,
         'six': 6, 'seven': 7, 'eight': 8, 'nine': 9, 'ten': 10
@@ -28,6 +38,13 @@ def text_to_number(text):
 
 def number_to_text(number):
     """Convert integer to English text"""
+    # Validate input type and range
+    if not isinstance(number, int):
+        raise ValueError("Unable to convert number to text")
+    
+    if number < 0:
+        raise ValueError("Unable to convert number to text")
+    
     try:
         return num2words(number)
     except:
@@ -35,6 +52,10 @@ def number_to_text(number):
 
 def base64_to_number(b64_str):
     """Convert base64 to integer"""
+    # Validate input
+    if not b64_str or not isinstance(b64_str, str):
+        raise ValueError("Invalid base64 input")
+    
     try:
         # Decode base64 to bytes, then convert bytes to integer
         decoded_bytes = base64.b64decode(b64_str)
@@ -44,7 +65,15 @@ def base64_to_number(b64_str):
 
 def number_to_base64(number):
     """Convert integer to base64"""
+    # Validate input
+    if not isinstance(number, int):
+        raise ValueError("Unable to convert to base64")
+    
     try:
+        # Special case for 0 - ensure it produces valid base64
+        if number == 0:
+            return base64.b64encode(b'\x00').decode('utf-8')
+        
         # Convert integer to bytes, then encode to base64
         byte_count = (number.bit_length() + 7) // 8
         number_bytes = number.to_bytes(byte_count, byteorder='big')

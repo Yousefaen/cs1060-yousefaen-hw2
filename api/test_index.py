@@ -209,7 +209,7 @@ def test_edge_cases():
 
 def test_invalid_inputs():
     # Test various invalid inputs that should raise errors
-    invalid_texts = ["eleven", "hundred", "abc", "", "123"]
+    invalid_texts = ["abc", "", "123", "not a number", "invalid text"]
     for text in invalid_texts:
         with pytest.raises(ValueError):
             text_to_number(text)
