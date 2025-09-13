@@ -1,5 +1,3 @@
-#Vercel Deployment Link:
-https://cs1060-yousefaen-hw2.vercel.app/
 
 
 # Numeric Converter - cs1060-hw2-base
